@@ -35,7 +35,8 @@ namespace EditModeTests
             var inputReader = new InputReaderMock
             {
                 MoveInput = Vector3.right,
-                IsMovePressed = true
+                IsMovePressed = true,
+                IsSprintInputPressed = false
             };
 
             var playerInputHandler = new PlayerInputHandler(inputReader, _camera);
@@ -55,7 +56,8 @@ namespace EditModeTests
             var inputReader = new InputReaderMock
             {
                 MoveInput = new Vector3(1, .5f, .1f),
-                IsMovePressed = false
+                IsMovePressed = false,
+                IsSprintInputPressed = false
             };
 
             var playerInputHandler = new PlayerInputHandler(inputReader, _camera);

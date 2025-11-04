@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 950e77608f0645a196e97ffd30260bc9, type: 3}
   m_Name: Player Movement Settings
   m_EditorClassIdentifier: OfficeFold::OfficeFold.PlayerSettings
-  <MaxWalkSpeed>k__BackingField: 5.8
-  <WalkAcceleration>k__BackingField: 58
-  <WalkDeceleration>k__BackingField: 58
+  <MaxWalkSpeed>k__BackingField: 4
+  <WalkAcceleration>k__BackingField: 60
+  <WalkDeceleration>k__BackingField: 90
   <MaxWalkableSlopeAngle>k__BackingField: 70
+  <MaxSprintSpeed>k__BackingField: 6.5
+  <SprintAcceleration>k__BackingField: 90
+  <SprintDeceleration>k__BackingField: 50
   <MaxFallSpeed>k__BackingField: 10
   <MaxGroundedFallSpeed>k__BackingField: 4
-  <GravityAcceleration>k__BackingField: 9.81
+  <FallAcceleration>k__BackingField: 9.8
+  <AirborneMomentumDeceleration>k__BackingField: 29

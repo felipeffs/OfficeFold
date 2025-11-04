@@ -6,5 +6,6 @@ namespace OfficeFold.Input.Interfaces
     {
         Vector2 MoveInput { get; }
         bool IsMovePressed { get; }
+        bool IsSprintInputPressed { get; }
     }
 }

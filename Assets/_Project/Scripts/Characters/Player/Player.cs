@@ -48,18 +48,37 @@ namespace OfficeFold.Characters.Player
         {
             _isGrounded = IsGrounded();
             var inputs = _inputHandler.GetInputs();
-            HandleMovement(inputs.MoveVector);
+            HandleMovement(inputs.MoveVector, inputs.IsSprintPressed);
         }
 
-        private void HandleMovement(Vector3 direction)
+        private void HandleMovement(Vector3 direction, bool isSprintPressed)
         {
             if (_isGrounded)
             {
-                _moveVelocity = CalculateGroundedMovementVelocity(direction);
+                var hasSprintInput = isSprintPressed && direction.magnitude > 0;
+                var isAtSprintSpeed = _moveVelocity.magnitude - _movementSettings.MaxWalkSpeed > .1f;
+
+                if (hasSprintInput)
+                {
+                    Debug.Log($"<color=#00FF00>Grounded/️Sprint |{_moveVelocity.magnitude}</color>");
+                    _moveVelocity = CalculateSprintVelocity(direction);
+                }
+                else if (isAtSprintSpeed)
+                {
+                    Debug.Log($"<color=#F25333>Grounded/SprintToWalk |{_moveVelocity.magnitude}</color>");
+                    _moveVelocity = CalculateSprintToWalkDecelerationVelocity();
+                }
+                else
+                {
+                    Debug.Log($"<color=#666EFF>Grounded/Walk |{_moveVelocity.magnitude}</color>");
+                    _moveVelocity = CalculateWalkVelocity(direction);
+                }
+
                 _fallVelocity = CalculateGroundedFallVelocity();
             }
             else
             {
+                Debug.Log("<color=#F2E533>Airborne/Fall</color>");
                 _moveVelocity = CalculateAirborneMomentumVelocity();
                 _fallVelocity = CalculateFallVelocity();
             }
@@ -67,7 +86,7 @@ namespace OfficeFold.Characters.Player
             _rb.linearVelocity = _moveVelocity + _fallVelocity;
         }
 
-        private Vector3 CalculateGroundedMovementVelocity(Vector3 direction)
+        private Vector3 CalculateWalkVelocity(Vector3 direction)
         {
             var targetVelocity = direction * _movementSettings.MaxWalkSpeed;
 
@@ -77,6 +96,24 @@ namespace OfficeFold.Characters.Player
                 : _movementSettings.WalkDeceleration) * Time.fixedDeltaTime;
 
             return Vector3.MoveTowards(_moveVelocity, targetVelocity, acceleration);
+        }
+
+        private Vector3 CalculateSprintVelocity(Vector3 direction)
+        {
+            var targetVelocity = direction.normalized * _movementSettings.MaxSprintSpeed;
+
+            var velocityDot = Vector3.Dot(_moveVelocity.normalized, targetVelocity.normalized);
+            var acceleration = (velocityDot > 0f
+                ? _movementSettings.SprintAcceleration
+                : _movementSettings.SprintDeceleration) * Time.fixedDeltaTime;
+
+            return Vector3.MoveTowards(_moveVelocity, targetVelocity, acceleration);
+        }
+
+        private Vector3 CalculateSprintToWalkDecelerationVelocity()
+        {
+            var acceleration = _movementSettings.SprintDeceleration * Time.fixedDeltaTime;
+            return Vector3.MoveTowards(_moveVelocity, Vector3.zero, acceleration);
         }
 
         private Vector3 CalculateAirborneMomentumVelocity()

@@ -7,5 +7,6 @@ namespace EditModeTests.Mock
     {
         public Vector2 MoveInput { get; set; }
         public bool IsMovePressed { get; set; }
+        public bool IsSprintInputPressed { get; set; }
     }
 }

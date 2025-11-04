@@ -18,7 +18,8 @@ namespace OfficeFold.Input
         {
             var inputs = new PlayerInputs
             {
-                MoveVector = GetMoveVectorRelativeToCamera()
+                MoveVector = GetMoveVectorRelativeToCamera(),
+                IsSprintPressed = _inputReader.IsSprintInputPressed
             };
 
             return inputs;
