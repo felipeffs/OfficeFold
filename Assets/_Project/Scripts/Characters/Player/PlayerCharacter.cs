@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 namespace OfficeFold.Characters.Player
 {
     [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
-    public class Player : MonoBehaviour
+    public class PlayerCharacter : MonoBehaviour
     {
         private PlayerInputHandler _inputHandler;
 
@@ -25,6 +25,7 @@ namespace OfficeFold.Characters.Player
         private Vector3 _moveVelocity;
         private Vector3 _fallVelocity;
         private bool _isGrounded;
+        public Vector3 MoveDirection => _moveVelocity.normalized;
 
         private void OnValidate()
         {
@@ -48,7 +49,12 @@ namespace OfficeFold.Characters.Player
         {
             _isGrounded = IsGrounded();
             var inputs = _inputHandler.GetInputs();
-            HandleMovement(inputs.MoveVector, inputs.IsSprintPressed);
+            var moveVector = inputs.MoveVector;
+
+            if (inputs.MoveVector.magnitude < _movementSettings.MinWalkIntensity)
+                moveVector = inputs.MoveVector.normalized * _movementSettings.MinWalkIntensity;
+
+            HandleMovement(moveVector, inputs.IsSprintPressed);
         }
 
         private void HandleMovement(Vector3 direction, bool isSprintPressed)
@@ -105,14 +111,14 @@ namespace OfficeFold.Characters.Player
             var velocityDot = Vector3.Dot(_moveVelocity.normalized, targetVelocity.normalized);
             var acceleration = (velocityDot > 0f
                 ? _movementSettings.SprintAcceleration
-                : _movementSettings.SprintDeceleration) * Time.fixedDeltaTime;
+                : _movementSettings.SprintToWalkDeceleration) * Time.fixedDeltaTime;
 
             return Vector3.MoveTowards(_moveVelocity, targetVelocity, acceleration);
         }
 
         private Vector3 CalculateSprintToWalkDecelerationVelocity()
         {
-            var acceleration = _movementSettings.SprintDeceleration * Time.fixedDeltaTime;
+            var acceleration = _movementSettings.SprintToWalkDeceleration * Time.fixedDeltaTime;
             return Vector3.MoveTowards(_moveVelocity, Vector3.zero, acceleration);
         }
 
@@ -163,6 +169,15 @@ namespace OfficeFold.Characters.Player
             }
 
             return false;
+        }
+
+        public float GetHorizontalSpeedRatio()
+        {
+            var walkSpeedRatio = Mathf.Min(1, _moveVelocity.magnitude / _movementSettings.MaxWalkSpeed);
+            var sprintSpeedRatio = Mathf.Max(0f, _moveVelocity.magnitude - _movementSettings.MaxWalkSpeed) /
+                                   (_movementSettings.MaxSprintSpeed - _movementSettings.MaxWalkSpeed);
+
+            return walkSpeedRatio + sprintSpeedRatio;
         }
     }
 }
